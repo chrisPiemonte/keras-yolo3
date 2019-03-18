@@ -8,6 +8,7 @@ from keras.layers import Input, Lambda
 from keras.models import Model
 from keras.optimizers import Adam
 from keras.callbacks import TensorBoard, ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
+from pathlib import Path
 
 from yolo3.model import preprocess_true_boxes, yolo_body, tiny_yolo_body, yolo_loss
 from yolo3.utils import get_random_data
@@ -18,6 +19,8 @@ default_classes_path = '../model_data/coco_classes.txt'    # to change
 default_anchors_path = '../model_data/yolo_anchors.txt'
 default_model_path   = '../model_data/yolo.h5'
 
+# path_prova = Path(default_log_dir)
+# path_prova.mkdir(parents=True, exist_ok=True)
 
 def _run(annotation_path=default_annotation_path, log_dir=default_log_dir, model_path=default_model_path,
          classes_path=default_classes_path, anchors_path=default_anchors_path):
@@ -72,7 +75,7 @@ def _run(annotation_path=default_annotation_path, log_dir=default_log_dir, model
         )
 
         batch_size = 32
-        print('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
+        print(f'Train on {num_train} samples, val on {num_val} samples, with batch size {batch_size}.')
         history_freezed = model.fit_generator(
             data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
             steps_per_epoch=max(1, num_train//batch_size),
@@ -97,7 +100,7 @@ def _run(annotation_path=default_annotation_path, log_dir=default_log_dir, model
         print('Unfreeze all of the layers.')
 
         batch_size = 32 # note that more GPU memory is required after unfreezing the body
-        print('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
+        print(f'Train on {num_train} samples, val on {num_val} samples, with batch size {batch_size}.')
         history_unfreezed = model.fit_generator(
             data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
             steps_per_epoch=max(1, num_train//batch_size),
